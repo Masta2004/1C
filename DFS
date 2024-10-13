@@ -1,0 +1,75 @@
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <vector>
+
+class Graph {
+ public:
+  Graph() = default;
+
+  explicit Graph(int size) : size_(size + 1), graph_(size + 1), colours_(size + 1, 0), components_() {
+  }
+
+  void AddEdge(int u, int v) {
+    graph_[u].push_back(v);
+    graph_[v].push_back(u);
+  }
+
+  void MakeGraph(int number_of_edge) {
+    for (int i = 0; i < number_of_edge; i++) {
+      int u;
+      int v;
+      std::cin >> u >> v;
+      AddEdge(u, v);
+    }
+  }
+
+  void DFS(int vertex, std::vector<int>& component) {
+    colours_[vertex] = 1;
+    component.push_back(vertex);
+    for (auto& u : graph_[vertex]) {
+      if (colours_[u] == 0) {
+        DFS(u, component);
+      }
+    }
+    colours_[vertex] = 2;
+  }
+
+  std::vector<std::vector<int>>& Components() {
+    for (int i = 1; i < size_; i++) {
+      if (colours_[i] == 0) {
+        std::vector<int> component;
+        DFS(i, component);
+        components_.push_back(component);
+      }
+    }
+    return components_;
+  }
+
+ private:
+  int size_;
+  std::vector<std::vector<int>> graph_;
+  std::vector<int> colours_;
+  std::vector<std::vector<int>> components_;
+};
+
+std::ostream& operator<<(std::ostream& os, std::vector<std::vector<int>>& graph) {
+  os << graph.size() << '\n';
+  for (auto& comp : graph) {
+    os << comp.size() << '\n';
+    for (auto& vert : comp) {
+      os << vert << ' ';
+    }
+    os << '\n';
+  }
+  return os;
+}
+
+int main() {
+  int number_of_vertex, number_of_edge;
+  std::cin >> number_of_vertex >> number_of_edge;
+  Graph graph(number_of_vertex);
+  graph.MakeGraph(number_of_edge);
+  std::cout << graph.Components();
+  return 0;
+}
